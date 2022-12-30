@@ -30,6 +30,18 @@ app.post("/account", (request, response) => {
   return response.status(201).send(persona);
 });
 
+app.get("/statement", (request, response) => {
+  const { cpf } = request.headers;
+
+  const costumer = costomers.find((item) => item.cpf === cpf);
+
+  if (!costumer) {
+    return response.status(404).json({ error: "este usuario não existe" });
+  }
+
+  return response.json(costumer.statement);
+});
+
 app.listen(3333, () => {
   console.log("--- servidor rodando ----");
 });
