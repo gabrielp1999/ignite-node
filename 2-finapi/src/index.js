@@ -105,6 +105,33 @@ app.post("/withdraw", verifyIfExistsAccountCPF, (request, response) => {
 
 })
 
+app.get("/statement/date", verifyIfExistsAccountCPF,(request, response) => {
+  const { customer } = request;
+  const { date } = request.query;
+
+  const dateFormat = new Date(date + " 00:00");
+
+  const statement = customer.statement.filter((statement) => statement.create_at.toDateString() === new Date
+    (dateFormat).toDateString());
+  
+  return response.json(statement);
+});
+
+app.put("/account", verifyIfExistsAccountCPF, (request, response) => {
+  const { name } = request.body;
+  const { customer } = request;
+
+  customer.name = name;
+
+  return response.status(201).send();
+})
+
+app.get("/account", verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+  return response.json(customer);
+})
+
+
 app.listen(3001, () => {
   console.log("--- servidor rodando na 3001 ----");
 });
