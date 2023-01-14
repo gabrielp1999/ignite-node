@@ -131,6 +131,20 @@ app.get("/account", verifyIfExistsAccountCPF, (request, response) => {
   return response.json(customer);
 })
 
+app.delete("/account", verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+  costomers.splice(customer, 1);
+
+  return response.status(200).send(costomers);
+})
+
+app.get("/balance", verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+  const balance = getBalance(customer.statement);
+
+  return response.status(200).json(balance)
+})
+
 
 app.listen(3001, () => {
   console.log("--- servidor rodando na 3001 ----");
