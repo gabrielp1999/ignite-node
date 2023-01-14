@@ -6,6 +6,19 @@ app.use(express.json());
 
 const costomers = [];
 
+function verifyIfExistsAccountCPF(request, response, next){
+  const { cpf } = request.headers;
+  const costumer = costomers.find((item) => item.cpf === cpf);
+
+  if (!costumer) {
+    return response.status(400).json({ error: "este usuario não existe" });
+  }
+
+  request.customer = costumer;
+
+  return next();
+}
+
 app.post("/account", (request, response) => {
   const { cpf, name } = request.body;
   const costomersAlreadyExists = costomers.some(
@@ -30,18 +43,32 @@ app.post("/account", (request, response) => {
   return response.status(201).send(persona);
 });
 
-app.get("/statement", (request, response) => {
-  const { cpf } = request.headers;
+// app.use(verifyIfExistsAccountCPF);
 
-  const costumer = costomers.find((item) => item.cpf === cpf);
-
-  if (!costumer) {
-    return response.status(404).json({ error: "este usuario não existe" });
-  }
-
-  return response.json(costumer.statement);
+app.get("/statement", verifyIfExistsAccountCPF,(request, response) => {
+  const { customer } = request;
+  
+  return response.json(customer.statement);
 });
 
-app.listen(3333, () => {
-  console.log("--- servidor rodando ----");
+
+app.post("/deposit", verifyIfExistsAccountCPF, (request, response) => {
+  const { description, amount } = request.body;
+
+  const { customer } = request;
+
+  const statementOperation = {
+    description,
+    amount,
+    create_at: new Date(),
+    type: "credit"
+  }
+
+  customer.statement.push(statementOperation);
+
+  return response.status(201).send();
+})
+
+app.listen(3001, () => {
+  console.log("--- servidor rodando na 3001 ----");
 });
